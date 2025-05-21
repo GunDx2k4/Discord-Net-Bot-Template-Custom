@@ -1,19 +1,16 @@
-﻿using Discord.Interactions;
+﻿using Discord;
+using Discord.Interactions;
+using DiscordNetTemplate.Attributes;
+using DiscordNetTemplate.Helper;
 using Microsoft.Extensions.Logging;
 
 namespace DiscordNetTemplate.Modules;
 
-public class CommandModule : InteractionModuleBase<SocketInteractionContext>
+[UserPermission(GuildPermission.Administrator)]
+public class CommandModule(ILogger<CommandModule> logger, EmbedHelper embedHelper) : InteractionModuleBase<SocketInteractionContext>
 {
-    private readonly ILogger<CommandModule> _logger;
-
-    public CommandModule(ILogger<CommandModule> logger)
-    {
-        _logger = logger;
-    }
-
     [SlashCommand("test", "Just a test command")]
     public async Task TestCommand()
-        => await RespondAsync("Hello There");
+        => await RespondAsync(embed: embedHelper.BasicEmbedBuilder("testCommand").Build());
 
 }
