@@ -2,12 +2,13 @@ using System.Reflection;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using DiscordNetTemplate.Helper;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace DiscordNetTemplate.Services;
 
-public class InteractionHandler(DiscordSocketClient client, InteractionService interactionService, IServiceProvider services, ILogger<InteractionHandler> logger) : BackgroundService
+public class InteractionHandler(DiscordSocketClient client, InteractionService interactionService, IServiceProvider services, ILogger<InteractionHandler> logger, EmbedHelper embedHelper) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -46,41 +47,41 @@ public class InteractionHandler(DiscordSocketClient client, InteractionService i
         switch (result.Error)
         {
             case InteractionCommandError.UnmetPrecondition:
-                logger.LogInformation($"Unmet precondition - {result.Error}");
+                logger.LogInformation($"Unmet precondition - {result.Error} [{result.ErrorReason}]");
                 break;
 
             case InteractionCommandError.BadArgs:
-                logger.LogInformation($"Unmet precondition - {result.Error}");
+                logger.LogInformation($"Unmet precondition - {result.Error} [{result.ErrorReason}]");
                 break;
 
             case InteractionCommandError.ConvertFailed:
-                logger.LogInformation($"Convert Failed - {result.Error}");
+                logger.LogInformation($"Convert Failed - {result.Error} [{result.ErrorReason}]");
                 break;
 
             case InteractionCommandError.Exception:
-                logger.LogInformation($"Exception - {result.Error}");
+                logger.LogInformation($"Exception - {result.Error} [{result.ErrorReason}]");
                 break;
 
             case InteractionCommandError.ParseFailed:
-                logger.LogInformation($"Parse Failed - {result.Error}");
+                logger.LogInformation($"Parse Failed - {result.Error} [{result.ErrorReason}]");
                 break;
 
             case InteractionCommandError.UnknownCommand:
-                logger.LogInformation($"Unknown Command - {result.Error}");
+                logger.LogInformation($"Unknown Command - {result.Error} [{result.ErrorReason}]");
                 break;
 
             case InteractionCommandError.Unsuccessful:
-                logger.LogInformation($"Unsuccessful - {result.Error}");
+                logger.LogInformation($"Unsuccessful - {result.Error} [{result.ErrorReason}]");
                 break;
         }
 
         if (!interaction.HasResponded)
         {
-            await interaction.RespondAsync("An error has occurred. We are already investigating it!", ephemeral: true);
+            await interaction.RespondAsync(embed: embedHelper.ErrorEmbedBuilder($"Error [{result.ErrorReason}]").Build());
         }
         else
         {
-            await interaction.FollowupAsync("An error has occurred. We are already investigating it!", ephemeral: true);
+            await interaction.FollowupAsync(embed: embedHelper.ErrorEmbedBuilder($"Error [{result.ErrorReason}]").Build());
         }
     }
 }
