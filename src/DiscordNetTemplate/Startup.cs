@@ -1,8 +1,9 @@
-﻿using Discord;
+﻿using System.Text;
+using Discord;
 using Discord.Interactions;
 using Discord.Rest;
 using Discord.WebSocket;
-
+using DiscordNetTemplate.Helper;
 using DiscordNetTemplate.Options;
 using DiscordNetTemplate.Services;
 
@@ -13,6 +14,7 @@ using Microsoft.Extensions.Logging;
 
 using Serilog;
 
+Console.OutputEncoding = Encoding.UTF8;
 
 var builder = new HostApplicationBuilder(args);
 
@@ -35,7 +37,7 @@ builder.Logging.AddSerilog(loggerConfig, dispose: true);
 
 builder.Services.AddSingleton(new DiscordSocketConfig
 {
-    GatewayIntents = GatewayIntents.AllUnprivileged,
+    GatewayIntents = GatewayIntents.All,
     FormatUsersInBidirectionalUnicode = false,
     // Add GatewayIntents.GuildMembers to the GatewayIntents and change this to true if you want to download all users on startup
     AlwaysDownloadUsers = false,
@@ -43,6 +45,8 @@ builder.Services.AddSingleton(new DiscordSocketConfig
     LogLevel = LogSeverity.Info
 });
 
+builder.Services.AddSingleton<EmbedHelper>();
+builder.Services.AddSingleton<StringHelper>();
 builder.Services.AddSingleton<DiscordSocketClient>();
 builder.Services.AddSingleton<IRestClientProvider>(x => x.GetRequiredService<DiscordSocketClient>());
 
